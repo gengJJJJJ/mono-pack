@@ -1,0 +1,4 @@
+packages:
+  # 所有项目
+  - 'packages/*'
+  - 'playground/*'

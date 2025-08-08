@@ -1,0 +1,11 @@
+.abn {
+	margin-top: 20px;
+	width: 199px;
+	position: relative;
+	background-color: #000;
+	display: flex;
+	.ccc {
+		color: aliceblue;
+		flex: 1;
+	}
+}

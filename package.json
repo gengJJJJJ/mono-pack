@@ -1,0 +1,25 @@
+{
+  "name": "mono-pack",
+  "version": "1.0.0",
+  "description": "pnpm + monorepo 管理npm包",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "release": "bumpp",
+    "docs:dev": "vitepress dev packages/doc --host",
+    "docs:build": "vitepress build packages/doc",
+    "docs:preview": "vitepress preview packages/doc"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.2",
+    "rollup": "^4.43.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "tsx": "^4.20.3",
+    "vitepress": "^1.6.3",
+    "vue": "^3.4.0"
+  }
+}
