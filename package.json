@@ -2,9 +2,7 @@
   "name": "mono-pack",
   "version": "1.0.0",
   "description": "pnpm + monorepo 管理npm包",
-  "workspaces": [
-    "packages/*"
-  ],
+  "private": true,
   "scripts": {
     "release": "bumpp",
     "docs:dev": "vitepress dev packages/doc --host",

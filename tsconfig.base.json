@@ -6,15 +6,11 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "./dist",
     "declaration": true,
-    "declarationDir": "./dist",
-    "emitDeclarationOnly": true,
-    "moduleResolution": "node",
+    "emitDeclarationOnly": false,
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "sourceMap": true,
-    "baseUrl": ".",
-    "types": ["vite/client"]
-  },
-  "include": ["packages/**/*"]
+    "baseUrl": "."
+  }
 }
