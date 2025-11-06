@@ -1,36 +1,66 @@
 {
-  "name": "@mono-pack/composables",
+  "name": "@gengjjjjj/composables",
   "version": "1.0.0",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "type": "module",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
+  "description": "vue3常用composables",
+  "keywords": [
+    "vue",
+    "composable",
+    "rem",
+    "viewport"
   ],
+  "author": "GengJJJJJ",
+  "homepage": "https://gitee.com/gengJJJJJ/mono-pack",
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/gengJJJJJ/mono-pack.git",
+    "directory": "packages/composables"
+  },
+  "bugs": {
+    "url": "https://gitee.com/gengJJJJJ/mono-pack/issues"
+  },
+  "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./package.json": "./package.json"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
   },
-  "scripts": { 
-    "build": "vite build"
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@mono-pack/utils": "workspace:*",
-    "vue": "^3.4.0"
+    "@gengjjjjj/utils": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^12.1.2",
-    "rollup-plugin-dts": "^6.2.1",
-    "tslib": "^2.8.1",
+    "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "vite": "^6.2.4"
+    "vue": "^3.4.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
