@@ -1,20 +1,62 @@
 {
-  "name": "@mono-pack/utils",
+  "name": "@gengjjjjj/utils",
   "version": "1.0.0",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
+  "description": "vue3常用utils",
+  "keywords": [
+    "typescript",
+    "utils",
+    "debounce",
+    "toolkit"
   ],
+  "author": "GengJJJJJ",
+  "homepage": "https://gitee.com/gengJJJJJ/mono-pack",
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/gengJJJJJ/mono-pack.git",
+    "directory": "packages/utils"
+  },
+  "bugs": {
+    "url": "https://gitee.com/gengJJJJJ/mono-pack/issues"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
   "scripts": {
-    "build": "rollup -c"
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^9.0.0"
+    "dayjs": "^1.11.19",
+    "localforage": "^1.10.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.8.3"
   },
-  "dependencies": {
-    "localforage": "^1.10.0"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

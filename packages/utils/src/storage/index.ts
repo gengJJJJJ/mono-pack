@@ -12,7 +12,42 @@ localforage.config({
 
 type StorageValue = any;
 
-const webStorage = {
+/**
+ * @example
+ * ```ts
+ * // 存储数据
+ * const saveData = async () => {
+ *   await storage.set('username', 'john_doe');
+ * };
+ * // 获取数据
+ * const getData = async () => {
+ *   const username = await storage.get<string>('username');
+ * };
+ * // 删除数据
+ * const removeData = async () => {
+ *   await storage.remove('username');
+ * };
+ * // 清空所有数据
+ * const clearAll = async () => {
+ *   await storage.clear();
+ * };
+ * // 获取当前存储条目数量
+ * const checkLength = async () => {
+ *   const length = await storage.length();
+ * };
+ * // 获取所有 key
+ * const getAllKeys = async () => {
+ *   const keys = await storage.keys();
+ * };
+ * // 遍历所有键值对
+ * const iterateAll = async () => {
+ *   await storage.iterate((value, key, iterationNumber) => {
+ *     console.log(`第 ${iterationNumber} 项:`, { key, value });
+ *   });
+ * };
+ * ```
+ */
+export const forage = {
   /**
    * 设置数据
    * @param key 键名
@@ -69,54 +104,44 @@ const webStorage = {
     return localforage.iterate<T, void>(callback);
   },
 };
-export const storage = webStorage;
 
-/**
- * @example 
-```ts
-import { storage } from '@mono-pack/utils';
-
-// 存储数据
-const saveData = async () => {
-  await storage.set('username', 'john_doe');
-  console.log('用户名已保存');
-};
-
-// 获取数据
-const getData = async () => {
-  const username = await storage.get<string>('username');
-  console.log('读取用户名:', username ?? '未找到');
-};
-
-// 删除数据
-const removeData = async () => {
-  await storage.remove('username');
-  console.log('用户名已删除');
-};
-
-// 清空所有数据
-const clearAll = async () => {
-  await storage.clear();
-  console.log('所有数据已清空');
-};
-
-// 获取当前存储条目数量
-const checkLength = async () => {
-  const length = await storage.length();
-  console.log(`当前存储条目数量: ${length}`);
-};
-
-// 获取所有 key
-const getAllKeys = async () => {
-  const keys = await storage.keys();
-  console.log('所有键名:', keys);
-};
-
-// 遍历所有键值对
-const iterateAll = async () => {
-  await storage.iterate((value, key, iterationNumber) => {
-    console.log(`第 ${iterationNumber} 项:`, { key, value });
-  });
-};
-```
+/** 浏览器缓存封装
+ * @example
+ * ```ts
+ * // 存储数据
+ * storage.set('username', 'john_doe');
+ * // 获取数据
+ * const username = storage.get<string>('username');
+ * // 删除数据
+ * storage.remove('user');
+ * storage.remove(['token','user']);
+ * // 清空所有数据
+ * storage.clear();
+ *
  */
+export const storage = {
+  /** 设置数据 */
+  set(key: string, value: any) {
+    localStorage.setItem(key, JSON.stringify(value));
+  },
+  /** 获取数据 */
+  get(key: string) {
+    const value = localStorage.getItem(key);
+    if (!value || value === "undefined") return null;
+    return JSON.parse(value);
+  },
+  /** 删除数据 */
+  remove(key: string | string[]): void {
+    if (Array.isArray(key)) {
+      key.forEach((item) => {
+        localStorage.removeItem(item);
+      });
+    } else {
+      localStorage.removeItem(key);
+    }
+  },
+  /** 清空数据 */
+  clear() {
+    localStorage.clear();
+  },
+};
