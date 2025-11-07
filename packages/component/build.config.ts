@@ -15,5 +15,5 @@ export default defineBuildConfig({
       }
     },
   },
-  externals: ["vue", "echarts"],
+  externals: ["vue", "echarts", "@vueuse/core", "element-plus"],
 });
