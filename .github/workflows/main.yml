@@ -42,7 +42,7 @@ jobs:
             - name: Deploy to GitHub Pages
               uses: crazy-max/ghaction-github-pages@v3
               env:
-                  GITHUB_TOKEN: ${{ secrets.mono_pack_doc }} 
+                  GITHUB_TOKEN: ${{ secrets.MONO_PACK_DOC }} 
               with:
                   target-branch: gh-pages # 部署到 gh-pages 分支，dev 分支存放的是项目源码，而 gh-pages 分支则用来存放生成的静态文件
                   build_dir: packages/doc/.vitepress/dist 
