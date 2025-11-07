@@ -11,7 +11,7 @@ export default defineConfig({
         text: "Packages",
         items: [
           { text: "components", link: "/components/" },
-          { text: "composables", link: "composables/" },
+          { text: "composables", link: "/composables/" },
           { text: "utils", link: "/utils/" },
         ],
       },
