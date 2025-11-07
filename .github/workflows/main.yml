@@ -1,0 +1,48 @@
+# workflow 名称，可以自定义
+name: Deploy GitHub Pages
+
+# 触发条件：在代码 push 到 main 分支后，自动执行该 workflow
+on:
+  push:
+    branches:
+        - dev
+    paths:
+        - 'packages/doc/**'
+
+# 任务
+jobs:
+    build-and-deploy:
+        # 服务器环境：最新版 Ubuntu，也可以自定义版本
+        runs-on: ubuntu-latest
+        steps:
+            # 拉取代码
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            # 设置 Node.js 版本
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20.x'
+                  cache: 'pnpm'
+            # 安装 pnpm
+            - name: Install pnpm
+              run: npm install -g pnpm
+            # 安装依赖
+            - name: Install dependencies in doc folder
+              run: pnpm install
+
+            # 生成静态文件
+            - name: Build VitePress docs
+              run: pnpm run docs:build
+
+            # 部署到 GitHub Pages
+            - name: Deploy to GitHub Pages
+              uses: crazy-max/ghaction-github-pages@v3
+              env:
+                  GITHUB_TOKEN: ${{ secrets.MONO_PACK_DOC }} 
+              with:
+                  target-branch: gh-pages # 部署到 gh-pages 分支，dev 分支存放的是项目源码，而 gh-pages 分支则用来存放生成的静态文件
+                  build_dir: packages/doc/.vitepress/dist 
