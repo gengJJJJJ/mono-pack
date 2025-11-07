@@ -3,6 +3,7 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "MONO-PACK",
   description: "This is an npm package managed in pnpm + monorepo style",
+  base: "/mono-pack/",
   themeConfig: {
     nav: [
       { text: "Home", link: "/" },
