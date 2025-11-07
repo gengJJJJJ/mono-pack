@@ -2,3 +2,4 @@
 node_modules
 packages/doc/.vitepress/cache
 packages/*/dist
+packages/*/**/dist
