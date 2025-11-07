@@ -2,6 +2,8 @@
 ```shell
     pnpm add @gengjjjjj/component
 ```
+### 文档
+[文档](https://gengjjjjj.github.io/mono-pack/components/)
 ### 使用
 - 按需引入
 ```ts
