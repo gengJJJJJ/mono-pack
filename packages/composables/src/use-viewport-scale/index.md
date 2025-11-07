@@ -24,7 +24,7 @@ pnpm install @gengjjjjj/composables
 pnpm install postcss-pxtorem
 ```
 
-### 配置 postcss-pxtorem
+### 配置 
 ```js
 // 根目录下创建 postcss.config.js
 module.exports = {
@@ -37,6 +37,24 @@ module.exports = {
     },
   },
 };
+```
+```ts
+// vite.config.ts
+import postCssPxToRem from 'postcss-pxtorem'
+export default defineConfig({
+	css: {
+		postcss: {
+			plugins: [
+				postCssPxToRem({
+					rootValue: 192, // 设计稿宽度
+					propList: ['*'], // 默认转换所有属性
+					selectorBlackList: ['.hairline'], // 或使用正则 /^body$/
+					minPixelValue: 2 // 小于 2px 的不转换
+				})
+			]
+		}
+	}
+})
 ```
 ### 快速使用
 
