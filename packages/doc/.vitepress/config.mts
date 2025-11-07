@@ -1,45 +1,65 @@
 import { defineConfig } from "vitepress";
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "MONO-PACK",
   description: "This is an npm package managed in pnpm + monorepo style",
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: "Home", link: "/" },
       {
         text: "Packages",
         items: [
-          { text: "@mono-pack/components", link: "/components/index" },
-          {
-            text: "@mono-pack/composables",
-            link: "/composables/useResponsiveRem",
-          },
-          { text: "@mono-pack/utils", link: "/utils/storage" },
+          { text: "components", link: "/components/" },
+          { text: "composables", link: "composables/" },
+          { text: "utils", link: "/utils/" },
         ],
       },
     ],
-
-    sidebar: [
-      {
-        text: "@mono-pack/components",
-        items: [{ text: "Runtime API Examples", link: "/components/index" }],
-      },
-      {
-        text: "@mono-pack/composables",
-        items: [
-          { text: "useResponsiveRem", link: "/composables/useResponsiveRem" },
-        ],
-      },
-      {
-        text: "@mono-pack/utils",
-        items: [{ text: "Storage", link: "/utils/storage" }],
-      },
-    ],
-
+    sidebar: {
+      "/components/": [
+        {
+          text: "Components",
+          collapsed: false,
+          items: [
+            { text: "index", link: "/components/index" },
+            { text: "EChart", link: "/components/echart" },
+            { text: "SvgIcon", link: "/components/svgIcon" },
+          ],
+        },
+      ],
+      "/composables/": [
+        {
+          text: "Composables",
+          collapsed: false,
+          items: [
+            { text: "index", link: "/composables/index" },
+            {
+              text: "useViewportScale",
+              link: "/composables/useViewportScale",
+            },
+          ],
+        },
+      ],
+      "/utils/": [
+        {
+          text: "Utils",
+          collapsed: false,
+          items: [
+            { text: "index", link: "/utils/index" },
+            { text: "filterObject", link: "/utils/filterObject" },
+            { text: "password", link: "/utils/password" },
+            { text: "storage", link: "/utils/storage" },
+            { text: "string", link: "/utils/string" },
+            { text: "tool", link: "/utils/tool" },
+            { text: "chart", link: "/utils/chart" },
+            { text: "map", link: "/utils/map" },
+          ],
+        },
+      ],
+      "/": [{ text: "Home", link: "/" }],
+    },
     socialLinks: [
-      { icon: "github", link: "https://github.com/vuejs/vitepress" },
+      { icon: "github", link: "https://gitee.com/gengJJJJJ/mono-pack" },
     ],
   },
 });

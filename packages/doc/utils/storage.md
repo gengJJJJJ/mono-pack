@@ -1,149 +1,106 @@
-### 使用localForage 替代 localStorage
-提供改进的离线存储解决方案‌，通过封装IndexedDB、WebSQL和localStorage等底层存储技术，实现跨浏览器兼容并支持异步操作和复杂数据类型存储。‌‌
+# storage / forage
 
-### 核心特性与优势‌
+浏览器存储封装工具，提供基于 `localStorage` 的同步存储和基于 `localForage` 的异步存储两种方案。
 
-1. ‌异步操作与多后端支持‌。
-- 采用异步API（支持Promise和回调），避免阻塞主线程。‌‌
-- 自动选择最佳存储引擎（优先级：IndexedDB > WebSQL > localStorage）。‌‌
+## 示例
 
-2. ‌数据类型兼容性‌。
-- 支持存储对象、数组、二进制数据等复杂类型，突破localStorage仅支持字符串的限制。‌‌
-- 默认数据序列化为JSON，简化开发流程。‌‌
+### 同步存储（storage）- 基于 localStorage
 
-3. ‌容量与性能优化‌。
-- 存储容量动态调整（通常高于localStorage的5MB上限）。‌‌
-- 支持数据拆分和智能存储管理，提升大文件处理能力。‌‌
-
-### 与localStorage对比‌。
-
-| 特性         | localForage      | localStorage |
-| ------------ | ---------------- | ------------ |
-| 操作模式     | 异步             | 同步         |
-| 数据类型支持 | 复杂类型         | 仅字符串     |
-| 存储容量     | 动态扩展（更高） | 固定5MB      |
-| 兼容性策略   | 多引擎自动降级   | 无降级机制   |
-::: details 查看代码
 ```ts
-// 使用localForage 替代 localStorage
-import localforage from "localforage";
-
-// 初始化 localForage 配置
-localforage.config({
-  driver: localforage.INDEXEDDB,
-  name: "mono-pack-db", // 数据库名称
-  version: 1.0,
-  storeName: "mono-pack-store", // 存储空间名称
-  description: "mono-pack storage",
-});
-
-type StorageValue = any;
-
-const webStorage = {
-  /**
-   * 设置数据
-   * @param key 键名
-   * @param value 值
-   */
-  set<T>(key: string, value: T): Promise<void> {
-    return localforage.setItem<StorageValue>(key, value);
-  },
-
-  /**
-   * 获取数据
-   * @param key 键名
-   */
-  get<T>(key: string): Promise<T | null> {
-    return localforage.getItem<T>(key);
-  },
-
-  /**
-   * 删除数据
-   * @param key 键名
-   */
-  remove(key: string): Promise<void> {
-    return localforage.removeItem(key);
-  },
-
-  /**
-   * 清空所有数据
-   */
-  clear(): Promise<void> {
-    return localforage.clear();
-  },
-
-  /**
-   * 获取当前存储条目数量
-   */
-  length(): Promise<number> {
-    return localforage.length();
-  },
-
-  /**
-   * 获取所有键名
-   */
-  keys(): Promise<string[]> {
-    return localforage.keys();
-  },
-
-  /**
-   * 遍历所有键值对
-   * @param callback 回调函数
-   */
-  iterate<T>(
-    callback: (value: T, key: string, iterationNumber: number) => void
-  ): Promise<void> {
-    return localforage.iterate<T, void>(callback);
-  },
-};
-export const storage = webStorage;
-
-```
-:::
-###  使用示例
-```ts
-import { storage } from '@mono-pack/utils';
-
 // 存储数据
-const saveData = async () => {
-  await storage.set('username', 'john_doe');
-  console.log('用户名已保存');
-};
+storage.set('username', 'john_doe');
+storage.set('userInfo', { id: 1, name: 'John' });
 
 // 获取数据
-const getData = async () => {
-  const username = await storage.get<string>('username');
-  console.log('读取用户名:', username ?? '未找到');
-};
+const username = storage.get<string>('username'); // 'john_doe'
+const userInfo = storage.get<{ id: number; name: string }>('userInfo'); // { id: 1, name: 'John' }
 
 // 删除数据
-const removeData = async () => {
-  await storage.remove('username');
-  console.log('用户名已删除');
-};
+storage.remove('username');
+storage.remove(['token', 'user']); // 批量删除
 
 // 清空所有数据
-const clearAll = async () => {
-  await storage.clear();
-  console.log('所有数据已清空');
-};
+storage.clear();
+```
 
-// 获取当前存储条目数量
-const checkLength = async () => {
-  const length = await storage.length();
-  console.log(`当前存储条目数量: ${length}`);
-};
+### 异步存储（forage）- 基于 IndexedDB
 
-// 获取所有 key
-const getAllKeys = async () => {
-  const keys = await storage.keys();
-  console.log('所有键名:', keys);
-};
+```ts
+// 存储数据
+await forage.set('username', 'john_doe');
+await forage.set('userInfo', { id: 1, name: 'John' });
+
+// 获取数据
+const username = await forage.get<string>('username'); // 'john_doe'
+const userInfo = await forage.get<{ id: number; name: string }>('userInfo'); // { id: 1, name: 'John' }
+
+// 删除数据
+await forage.remove('username');
+
+// 清空所有数据
+await forage.clear();
+
+// 获取存储条目数量
+const count = await forage.length(); // number
+
+// 获取所有键名
+const keys = await forage.keys(); // string[]
 
 // 遍历所有键值对
-const iterateAll = async () => {
-  await storage.iterate((value, key, iterationNumber) => {
-    console.log(`第 ${iterationNumber} 项:`, { key, value });
-  });
-};
+await forage.iterate((value, key, index) => {
+  console.log(`第 ${index} 项:`, { key, value });
+});
 ```
+
+## forage API
+
+基于 `localForage` 的异步存储方案，使用 IndexedDB 作为主要存储驱动，提供更好的性能和更大的存储容量。
+
+### 配置
+
+- **数据库名称**: `mono-pack-db`
+- **存储空间**: `mono-pack-store`
+- **版本**: `1.0`
+- **驱动**: `IndexedDB`（降级到 `localStorage`）
+
+### 方法
+
+| 方法 | 说明 | 参数 | 返回值 |
+|------|------|------|--------|
+| `set(key, value)` | 设置数据 | `key: string`<br>`value: T` | `Promise<void>` |
+| `get(key)` | 获取数据 | `key: string` | `Promise<T \| null>` |
+| `remove(key)` | 删除数据 | `key: string` | `Promise<void>` |
+| `clear()` | 清空所有数据 | - | `Promise<void>` |
+| `length()` | 获取存储条目数量 | - | `Promise<number>` |
+| `keys()` | 获取所有键名 | - | `Promise<string[]>` |
+| `iterate(callback)` | 遍历所有键值对 | `callback: (value: T, key: string, iterationNumber: number) => void` | `Promise<void>` |
+
+## storage API
+
+基于 `localStorage` 的同步存储方案，简单易用，适合小量数据存储。
+
+### 方法
+
+| 方法 | 说明 | 参数 | 返回值 |
+|------|------|------|--------|
+| `set(key, value)` | 设置数据 | `key: string`<br>`value: any` | `void` |
+| `get(key)` | 获取数据 | `key: string` | `T \| null` |
+| `remove(key)` | 删除数据 | `key: string \| string[]` | `void` |
+| `clear()` | 清空所有数据 | - | `void` |
+
+### 特性
+
+- 自动序列化/反序列化数据（使用 `JSON.stringify`/`JSON.parse`）
+- 支持批量删除（传入数组）
+- 自动处理 `undefined` 值（返回 `null`）
+
+## 选择建议
+
+| 场景 | 推荐方案 | 原因 |
+|------|----------|------|
+| 小量数据（<5MB），同步操作 | `storage` | 简单直接，无需 await |
+| 大量数据，异步操作 | `forage` | 支持 IndexedDB，容量更大，性能更好 |
+| 离线应用 | `forage` | 更好的持久化和同步支持 |
+| 简单缓存 | `storage` | 轻量级，满足基本需求 |
+
+> ⚠️ 注意：`localStorage` 有大小限制（通常为 5-10MB），且在主线程中操作可能阻塞 UI。`forage` 采用异步操作，不会阻塞主线程，适合大量数据存储。

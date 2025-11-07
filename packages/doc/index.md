@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: 快速开始
-      link: /markdown-examples
+      link: /components/index
     - theme: alt
-      text: github
-      link: /api-examples
+      text: gitee
+      link: https://gitee.com/gengjjjjj/mono-pack
 
 features:
   - title: Component
