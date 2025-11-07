@@ -26,7 +26,6 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: '20.x'
-                  cache: 'pnpm'
             # 安装 pnpm
             - name: Install pnpm
               run: npm install -g pnpm
