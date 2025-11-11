@@ -35,7 +35,7 @@ jobs:
 
             # 生成静态文件
             - name: Build VitePress docs
-              run: pnpm run docs:build
+              run: pnpm run build:docs
 
             # 部署到 GitHub Pages
             - name: Deploy to GitHub Pages
