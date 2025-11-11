@@ -1,0 +1,1 @@
+import{_ as i,c as a,o as t,ae as n}from"./chunks/framework.B4YfsRs4.js";const E=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"utils/index.md","filePath":"utils/index.md"}'),l={name:"utils/index.md"};function h(e,s,p,k,d,r){return t(),a("div",null,s[0]||(s[0]=[n("",4)]))}const o=i(l,[["render",h]]);export{E as __pageData,o as default};
