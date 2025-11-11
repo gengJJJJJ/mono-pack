@@ -25,6 +25,7 @@ export default defineConfig({
             { text: "index", link: "/components/index" },
             { text: "EChart", link: "/components/echart" },
             { text: "SvgIcon", link: "/components/svgIcon" },
+            { text: "ToHtml", link: "/components/toHtml" },
           ],
         },
       ],
