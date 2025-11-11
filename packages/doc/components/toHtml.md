@@ -11,5 +11,4 @@ const input = ref('<div>HTML content</div>')
   <div>input: <textarea v-model="input" placeholder="Input HTMLText Here" /></div>
   <div>html: <ToHtml v-model="input" /></div>
 </template>
-
 ```
