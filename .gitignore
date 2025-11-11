@@ -1,5 +1,6 @@
 .history
 node_modules
 packages/doc/.vitepress/cache
+dist
 packages/*/dist
 packages/*/**/dist

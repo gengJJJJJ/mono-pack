@@ -5,13 +5,22 @@
   "private": true,
   "scripts": {
     "release": "bumpp",
-    "docs:dev": "vitepress dev packages/doc --host",
-    "docs:build": "vitepress build packages/doc",
-    "docs:preview": "vitepress preview packages/doc"
+    "dev": "vite dev packages/x",
+    "dev:docs": "vitepress dev packages/doc --host",
+    "build:docs": "vitepress build packages/doc",
+    "build:components": "pnpm --filter=@gengjjjjj/component run build",
+    "build:utils": "pnpm --filter=@gengjjjjj/utils run build",
+    "build:composables": "pnpm --filter=@gengjjjjj/composables run build",
+    "preview:docs": "vitepress preview packages/doc",
+    "ca": "pnpm changeset add",
+    "cv": "pnpm changeset version",
+    "cp": "pnpm changeset publish",
+    "publish:components": "pnpm changeset publish --filter=@gengjjjjj/component",
+    "publish:utils": "pnpm changeset publish --filter=@gengjjjjj/utils",
+    "publish:composables": "pnpm changeset publish --filter=@gengjjjjj/composables"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^12.1.2",
-    "rollup": "^4.43.0",
+    "@changesets/cli": "^2.29.7",
     "tslib": "^2.8.1",
     "typescript": "^5.8.3"
   },
