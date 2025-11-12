@@ -49,12 +49,12 @@
     "@gengjjjjj/utils": "workspace:*"
   },
   "peerDependencies": {
-    "vue": "^3.4.0"
+    "vue": "catalog:"
   },
   "devDependencies": {
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.3",
-    "vue": "^3.4.0"
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vue": "catalog:"
   },
   "publishConfig": {
     "access": "public",

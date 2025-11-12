@@ -47,12 +47,12 @@
     "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
-    "@types/nprogress": "^0.2.3",
-    "dayjs": "^1.11.19",
-    "localforage": "^1.10.0",
-    "nprogress": "^0.2.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.8.3"
+    "@types/nprogress": "catalog:",
+    "dayjs": "catalog:",
+    "localforage": "catalog:",
+    "nprogress": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   },
   "publishConfig": {
     "access": "public",

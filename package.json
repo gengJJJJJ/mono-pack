@@ -20,13 +20,13 @@
     "publish:composables": "pnpm changeset publish --filter=@gengjjjjj/composables"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.7",
-    "tslib": "^2.8.1",
-    "typescript": "^5.8.3"
+    "@changesets/cli": "catalog:",
+    "tslib": "catalog:",
+    "typescript": "catalog:"
   },
   "dependencies": {
-    "tsx": "^4.20.3",
-    "vitepress": "^1.6.3",
-    "vue": "^3.4.0"
+    "tsx": "catalog:",
+    "vitepress": "catalog:",
+    "vue": "catalog:"
   }
 }

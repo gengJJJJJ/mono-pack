@@ -2,3 +2,25 @@ packages:
   # 所有项目
   - 'packages/*'
   - 'playground/*'
+
+catalog:
+  '@changesets/cli': ^2.29.7
+  'tsx': ^4.20.3
+  'tsup': ^8.5.0
+  'tslib': ^2.8.1
+  'typescript': ^5.8.3
+  'vite': ^4.4.9
+  'vue': ^3.4.0
+  'vitepress': ^1.6.3
+  'element-plus': ^2.10.2
+  'echarts': ^5.6.0
+  'vue-echarts': ^6.4.0
+  '@vueuse/core': ^14.0.0
+  'unplugin-vue': 6.2.0
+  'sass': ^1.93.3
+  'unbuild': ^3.5.0
+  'rollup-plugin-scss': ^4.0.1
+  '@types/nprogress': ^0.2.3
+  'nprogress': ^0.2.0
+  'dayjs': ^1.11.19
+  'localforage': ^1.10.0
