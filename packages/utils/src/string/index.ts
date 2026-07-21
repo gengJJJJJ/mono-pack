@@ -19,12 +19,18 @@ export function randomString(
   const result: string[] = [];
   const alphabetLength = alphabet.length;
 
-  // 使用 crypto.getRandomValues 提升随机性（浏览器环境）
   if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-    const uintArray = new Uint8Array(length);
-    crypto.getRandomValues(uintArray);
-    for (let i = 0; i < length; i++) {
-      result.push(alphabet[uintArray[i] % alphabetLength]);
+    // 拒绝采样，避免 % alphabetLength 的模偏差
+    const maxUnbiased = Math.floor(256 / alphabetLength) * alphabetLength;
+    while (result.length < length) {
+      const bytes = new Uint8Array(length - result.length);
+      crypto.getRandomValues(bytes);
+      for (const byte of bytes) {
+        if (byte < maxUnbiased) {
+          result.push(alphabet[byte % alphabetLength]);
+          if (result.length === length) break;
+        }
+      }
     }
   } else {
     // 降级到 Math.random（Node.js 或旧浏览器）
@@ -44,6 +50,7 @@ export function randomString(
  * capitalizeFirstLetter('hello world'); // 'Hello world'
  */
 export function capitalizeFirstLetter(string: string): string {
+  if (!string) return string;
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 

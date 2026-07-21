@@ -13,8 +13,8 @@ import {
 
 // 渲染器
 import {
-	CanvasRenderer
-	// SVGRenderer
+	CanvasRenderer,
+	SVGRenderer
 } from 'echarts/renderers'
 
 // 注册所有模块
@@ -31,7 +31,8 @@ echarts.use([
 	LegendComponent,
 
 	// 渲染器
-	CanvasRenderer
+	CanvasRenderer,
+	SVGRenderer
 ])
 
 export default echarts

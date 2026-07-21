@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<Props>(), {
 	loading: false,
 	loadingOptions: () => ({}),
 	renderer: 'canvas',
-	devicePixelRatio: window.devicePixelRatio || 1
+	devicePixelRatio: undefined
 })
 
 const emit = defineEmits<{
@@ -93,16 +93,21 @@ const drawOption = (options: EChartsOption = props.options) => {
 		})
 	}
 }
+const resolveDevicePixelRatio = () => {
+  if (props.devicePixelRatio != null) return props.devicePixelRatio;
+  if (typeof window !== "undefined") return window.devicePixelRatio || 1;
+  return 1;
+};
 const initChart = () => {
 	if (!chartRef.value) return
 	// 销毁旧实例
 	if (chartInstance.value) {
 		chartInstance.value.dispose()
 	}
-	const {theme, renderer, devicePixelRatio} = props
+	const {theme, renderer} = props
 	chartInstance.value = echarts.init(chartRef.value, theme, {
 		renderer,
-		devicePixelRatio
+		devicePixelRatio: resolveDevicePixelRatio()
 	})
 	// 绑定事件
 	chartInstance.value.on('click', params => {
@@ -140,7 +145,13 @@ defineExpose({
 })
 </script>
 <template>
-	<div ref="chartRef" :style="{width, height}" class="echarts-container" />
+  <div
+    ref="chartRef"
+    class="echarts-container"
+    role="img"
+    :aria-label="'chart'"
+    :style="{ width, height }"
+  />
 </template>
 <style lang="scss" scoped>
 .echarts-container {

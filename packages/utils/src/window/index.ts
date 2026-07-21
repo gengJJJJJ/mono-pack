@@ -5,34 +5,30 @@ interface OpenWindowOptions {
 }
 
 /**
- * 新窗口打开URL。
- * @param url - 需要打开的网址。
- * @param options - 打开窗口的选项。
- * @returns void
+ * 新窗口打开 URL。
  * @example
  * openWindow('https://example.com', { noopener: true, noreferrer: true, target: '_blank' });
  */
 function openWindow(url: string, options: OpenWindowOptions = {}): void {
-  // 解构并设置默认值
+  if (typeof window === "undefined") return;
+
   const { noopener = true, noreferrer = true, target = "_blank" } = options;
 
-  // 基于选项创建特性字符串
-  const features = [noopener && "noopener=yes", noreferrer && "noreferrer=yes"]
+  const features = [noopener && "noopener", noreferrer && "noreferrer"]
     .filter(Boolean)
     .join(",");
 
-  // 打开窗口
   window.open(url, target, features);
 }
 
 /**
- * 在新窗口中打开路由。
- * @param path - 需要打开的路由路径。
- * @returns void
+ * 在新窗口中打开路由（兼容 hash 模式）。
  * @example
  * openRouteInNewWindow('/home');
  */
 function openRouteInNewWindow(path: string) {
+  if (typeof window === "undefined" || typeof location === "undefined") return;
+
   const { hash, origin } = location;
   const fullPath = path.startsWith("/") ? path : `/${path}`;
   const url = `${origin}${

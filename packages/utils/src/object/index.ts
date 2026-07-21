@@ -19,37 +19,35 @@ type FilterOptions = {
  * const filtered = filterObject (obj, [null, undefined], ['e']) // 结果: { a: 1, c: 3 ，f: { e: 6 } }
  * ```
  */
-export function filterObject<T extends Record<string, any>>(
+export function filterObject<T>(
   obj: T,
   values: any[] = [undefined, null],
   fields: string[] = [],
   options: FilterOptions = {}
-): Partial<T> {
+): T extends Record<string, any> ? Partial<T> : T {
   if (typeof obj !== "object" || obj === null || Array.isArray(obj)) {
     return obj as any;
   }
 
   const { fieldMatchMode = "exact" } = options;
-  const result = {} as { [K in keyof T]?: T[K] };
+  const result = {} as Partial<T & Record<string, any>>;
 
-  for (const key of Object.keys(obj)) {
-    const value = obj[key];
+  for (const key of Object.keys(obj as object)) {
+    const value = (obj as Record<string, any>)[key];
 
-    // 检查是否要过滤该字段
     const shouldFilterField =
       fieldMatchMode === "exact"
         ? fields.includes(key)
         : fields.some((field) => key.includes(field));
 
-    // 检查是否要过滤该值
     const shouldFilterValue = values.some((v) => v === value);
 
     if (!shouldFilterField && !shouldFilterValue) {
-      result[key as keyof T] = value;
+      (result as any)[key] = value;
     }
   }
 
-  return result;
+  return result as any;
 }
 
 /**

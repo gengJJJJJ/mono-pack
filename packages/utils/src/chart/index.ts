@@ -1,8 +1,8 @@
 /**
  * 根据视口宽度适配图表字体尺寸
  * @param size - 原始尺寸
- * @param defaultWidth - 默认设计宽度1920（用于计算缩放比例）
- * @returns 适配后的尺寸（保留三位小数）
+ * @param defaultWidth - 默认设计宽度 1920（用于计算缩放比例）
+ * @returns 适配后的尺寸（保留三位小数）；非浏览器环境返回原值
  * @example
  * ```ts
  * textStyle: {fontSize: fontSize(14)}
@@ -12,10 +12,14 @@ export const fitChartSize = (
   size: number,
   defaultWidth: number = 1920
 ): number => {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return size;
+  }
+
   const viewportWidth =
     window.innerWidth ||
-    document.documentElement.clientWidth ||
-    document.body.clientWidth;
+    document.documentElement?.clientWidth ||
+    document.body?.clientWidth;
 
   if (!viewportWidth) return size;
 

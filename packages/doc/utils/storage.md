@@ -25,6 +25,14 @@ storage.clear();
 
 ### 异步存储（forage）- 基于 IndexedDB
 
+建议在应用入口自定义库名，避免多项目冲突：
+
+```ts
+import { configureForage, forage } from '@gengjjjjj/utils'
+
+configureForage({ name: 'my-app-db', storeName: 'kv' })
+```
+
 ```ts
 // 存储数据
 await forage.set('username', 'john_doe');

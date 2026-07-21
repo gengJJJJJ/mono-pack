@@ -34,9 +34,17 @@
   "files": [
     "dist"
   ],
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss"
+  ],
   "scripts": {
     "build": "unbuild",
     "stub": "unbuild --stub"
+  },
+  "dependencies": {
+    "@vueuse/core": "catalog:",
+    "dompurify": "catalog:"
   },
   "peerDependencies": {
     "echarts": "catalog:",
@@ -44,7 +52,6 @@
     "vue": "catalog:"
   },
   "devDependencies": {
-    "@vueuse/core": "catalog:",
     "echarts": "catalog:",
     "element-plus": "catalog:",
     "rollup-plugin-scss": "catalog:",

@@ -9,15 +9,18 @@ catalogs:
     '@changesets/cli':
       specifier: ^2.29.7
       version: 2.29.7
+    '@types/dompurify':
+      specifier: ^3.2.0
+      version: 3.2.0
     '@types/nprogress':
       specifier: ^0.2.3
       version: 0.2.3
     '@vueuse/core':
       specifier: ^14.0.0
       version: 14.0.0
-    dayjs:
-      specifier: ^1.11.19
-      version: 1.11.19
+    dompurify:
+      specifier: ^3.2.6
+      version: 3.4.12
     echarts:
       specifier: ^5.6.0
       version: 5.6.0
@@ -86,10 +89,17 @@ importers:
         version: 5.8.3
 
   packages/component:
-    devDependencies:
+    dependencies:
       '@vueuse/core':
         specifier: 'catalog:'
         version: 14.0.0(vue@3.5.24(typescript@5.8.3))
+      dompurify:
+        specifier: 'catalog:'
+        version: 3.4.12
+    devDependencies:
+      '@types/dompurify':
+        specifier: 'catalog:'
+        version: 3.2.0
       echarts:
         specifier: 'catalog:'
         version: 5.6.0
@@ -129,19 +139,17 @@ importers:
         version: 3.5.24(typescript@5.8.3)
 
   packages/utils:
-    devDependencies:
-      '@types/nprogress':
-        specifier: 'catalog:'
-        version: 0.2.3
-      dayjs:
-        specifier: 'catalog:'
-        version: 1.11.19
+    dependencies:
       localforage:
         specifier: 'catalog:'
         version: 1.10.0
       nprogress:
         specifier: 'catalog:'
         version: 0.2.0
+    devDependencies:
+      '@types/nprogress':
+        specifier: 'catalog:'
+        version: 0.2.3
       tsup:
         specifier: 'catalog:'
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.8.3)(yaml@2.8.1)
@@ -1626,6 +1634,10 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
+  '@types/dompurify@3.2.0':
+    resolution: {integrity: sha512-Fgg31wv9QbLDA0SpTOXO3MaxySc4DKGLi8sna4/Utjo4r3ZRPdCt4UQee8BWr+Q5z21yifghREPJGYaEOEIACg==}
+    deprecated: This is a stub types definition. dompurify provides its own type definitions, so you do not need this installed.
+
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
@@ -1673,6 +1685,9 @@ packages:
 
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
+
+  '@types/trusted-types@2.0.7':
+    resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -2714,6 +2729,9 @@ packages:
   domhandler@5.0.3:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
+
+  dompurify@3.4.12:
+    resolution: {integrity: sha512-zQvGet8Z2sWbQhCmfFz/T5QWH2oBmjnqK3qvOjaqaNLrLEF912WamU+ohnTp0TCep/MFVHpdJuCZEdFOdTnEFg==}
 
   domutils@1.7.0:
     resolution: {integrity: sha512-Lgd2XcJ/NjEw+7tFvfKxOzCYKZsdct5lczQ2ZaQY8Djz7pfAD3Gbp8ySJWtreII/vDlMVmxwa6pHmdxIYgttDg==}
@@ -7164,6 +7182,10 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
+  '@types/dompurify@3.2.0':
+    dependencies:
+      dompurify: 3.4.12
+
   '@types/estree@1.0.8': {}
 
   '@types/hast@3.0.4':
@@ -7212,6 +7234,9 @@ snapshots:
       '@types/node': 22.19.1
 
   '@types/tough-cookie@4.0.5': {}
+
+  '@types/trusted-types@2.0.7':
+    optional: true
 
   '@types/unist@3.0.3': {}
 
@@ -8458,6 +8483,10 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
+
+  dompurify@3.4.12:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
 
   domutils@1.7.0:
     dependencies:

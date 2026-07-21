@@ -1,136 +1,99 @@
 // 使用localForage 替代 localStorage
 import localforage from "localforage";
 
-// 初始化 localForage 配置
-localforage.config({
-  driver: localforage.INDEXEDDB,
-  name: "mono-pack-db", // 数据库名称
-  version: 1.0,
-  storeName: "mono-pack-store", // 存储空间名称
-  description: "mono-pack storage",
-});
-
 type StorageValue = any;
+
+const DEFAULT_FORAGE_CONFIG: LocalForageOptions = {
+  driver: localforage.INDEXEDDB,
+  name: "mono-pack-db",
+  version: 1.0,
+  storeName: "mono-pack-store",
+  description: "mono-pack storage",
+};
+
+let forageConfigured = false;
+
+/**
+ * 配置 IndexedDB（localforage）。未调用时会在首次读写时使用默认配置。
+ * 建议在应用入口按项目自定义 name / storeName，避免多项目库名冲突。
+ */
+export function configureForage(options: LocalForageOptions = {}): void {
+  localforage.config({
+    ...DEFAULT_FORAGE_CONFIG,
+    ...options,
+  });
+  forageConfigured = true;
+}
+
+function ensureForage() {
+  if (!forageConfigured) {
+    configureForage();
+  }
+}
 
 /**
  * @example
  * ```ts
- * // 存储数据
- * const saveData = async () => {
- *   await storage.set('username', 'john_doe');
- * };
- * // 获取数据
- * const getData = async () => {
- *   const username = await storage.get<string>('username');
- * };
- * // 删除数据
- * const removeData = async () => {
- *   await storage.remove('username');
- * };
- * // 清空所有数据
- * const clearAll = async () => {
- *   await storage.clear();
- * };
- * // 获取当前存储条目数量
- * const checkLength = async () => {
- *   const length = await storage.length();
- * };
- * // 获取所有 key
- * const getAllKeys = async () => {
- *   const keys = await storage.keys();
- * };
- * // 遍历所有键值对
- * const iterateAll = async () => {
- *   await storage.iterate((value, key, iterationNumber) => {
- *     console.log(`第 ${iterationNumber} 项:`, { key, value });
- *   });
- * };
+ * await forage.set('username', 'john_doe');
+ * const username = await forage.get<string>('username');
+ * await forage.remove('username');
+ * await forage.clear();
  * ```
  */
 export const forage = {
-  /**
-   * 设置数据
-   * @param key 键名
-   * @param value 值
-   */
-  set<T>(key: string, value: T): Promise<void> {
-    return localforage.setItem<StorageValue>(key, value);
+  set<T>(key: string, value: T): Promise<T> {
+    ensureForage();
+    return localforage.setItem<StorageValue>(key, value) as Promise<T>;
   },
 
-  /**
-   * 获取数据
-   * @param key 键名
-   */
   get<T>(key: string): Promise<T | null> {
+    ensureForage();
     return localforage.getItem<T>(key);
   },
 
-  /**
-   * 删除数据
-   * @param key 键名
-   */
   remove(key: string): Promise<void> {
+    ensureForage();
     return localforage.removeItem(key);
   },
 
-  /**
-   * 清空所有数据
-   */
   clear(): Promise<void> {
+    ensureForage();
     return localforage.clear();
   },
 
-  /**
-   * 获取当前存储条目数量
-   */
   length(): Promise<number> {
+    ensureForage();
     return localforage.length();
   },
 
-  /**
-   * 获取所有键名
-   */
   keys(): Promise<string[]> {
+    ensureForage();
     return localforage.keys();
   },
 
-  /**
-   * 遍历所有键值对
-   * @param callback 回调函数
-   */
   iterate<T>(
     callback: (value: T, key: string, iterationNumber: number) => void
   ): Promise<void> {
+    ensureForage();
     return localforage.iterate<T, void>(callback);
   },
 };
 
-/** 浏览器缓存封装
- * @example
- * ```ts
- * // 存储数据
- * storage.set('username', 'john_doe');
- * // 获取数据
- * const username = storage.get<string>('username');
- * // 删除数据
- * storage.remove('user');
- * storage.remove(['token','user']);
- * // 清空所有数据
- * storage.clear();
- *
- */
+/** 浏览器 localStorage 封装（JSON 序列化） */
 export const storage = {
-  /** 设置数据 */
   set(key: string, value: any) {
     localStorage.setItem(key, JSON.stringify(value));
   },
-  /** 获取数据 */
-  get(key: string) {
+  get<T = any>(key: string): T | null {
     const value = localStorage.getItem(key);
-    if (!value || value === "undefined") return null;
-    return JSON.parse(value);
+    if (value == null || value === "undefined") return null;
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      // 非 JSON 字符串时原样返回
+      return value as T;
+    }
   },
-  /** 删除数据 */
   remove(key: string | string[]): void {
     if (Array.isArray(key)) {
       key.forEach((item) => {
@@ -140,7 +103,6 @@ export const storage = {
       localStorage.removeItem(key);
     }
   },
-  /** 清空数据 */
   clear() {
     localStorage.clear();
   },

@@ -1,7 +1,12 @@
 /**
+ *  密码特殊字符检测
+ */
+const SPECIAL_CHAR_RE = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]/;
+
+/**
  * 获取密码强度（0-100)
  * @param password - 密码字符串
- * @param minLength - 可选，达到此长度后长度项得满分（默认为 8）
+ * @param minLength - 达到此长度后长度项得满分（默认为 8）
  * @returns 强度分数 (0-100)
  *
  * 评分策略：
@@ -17,19 +22,16 @@ export function getPasswordStrength(password: string, minLength = 8): number {
     return 0;
   }
   const len = password.length;
-  // 长度得分：达到 minLength 得 40 分，否则按比例计算
   const lengthScore =
     len >= minLength ? 40 : Math.max(0, Math.round((len / minLength) * 40));
-  // 字符类型检测（不因 minLength 改变）
   const hasNumber = /\d/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasUpper = /[A-Z]/.test(password);
-  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password);
+  const hasSpecial = SPECIAL_CHAR_RE.test(password);
   const typeScore =
     (hasNumber ? 15 : 0) +
     (hasLower ? 15 : 0) +
     (hasUpper ? 15 : 0) +
     (hasSpecial ? 15 : 0);
-  // 总分不超过 100
   return Math.min(100, lengthScore + typeScore);
 }

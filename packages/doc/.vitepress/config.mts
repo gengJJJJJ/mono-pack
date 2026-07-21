@@ -26,6 +26,7 @@ export default defineConfig({
             { text: "EChart", link: "/components/echart" },
             { text: "SvgIcon", link: "/components/svgIcon" },
             { text: "ToHtml", link: "/components/toHtml" },
+            { text: "Pagination", link: "/components/pagination" },
           ],
         },
       ],

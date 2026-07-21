@@ -1,11 +1,18 @@
-import { ref, shallowReadonly, type Ref, onUnmounted } from "vue";
+import {
+  ref,
+  shallowReadonly,
+  type Ref,
+  onUnmounted,
+  getCurrentInstance,
+} from "vue";
 import { debounce } from "@gengjjjjj/utils";
 
 // 默认配置
 const DEFAULT_OPTIONS = {
   designWidth: 1920,
   baseFontSizeAtDesign: 192, // 设计稿宽度下 1rem 对应的 px 值（通常 = designWidth / 10）
-  respectDPR: true, // 是否考虑设备像素比（高分屏适配）
+  // CSS 像素通常已含 DPR；默认关闭，避免视网膜屏 rem 过度放大（与文档一致）
+  respectDPR: false,
   debounceDelay: 150, // 防抖延迟（ms）
   autoDestroy: true, // 是否在组件卸载时自动销毁（仅 Vue 组件内使用时有效）
 } as const;
@@ -21,7 +28,7 @@ export interface ResponsiveRemResult {
   remScale: Readonly<Ref<number>>;
   currentFontSize: Readonly<Ref<number>>;
   update: () => void;
-  destroy: () => void;
+  destroy: (resetFontSize?: boolean) => void;
 }
 
 /**
@@ -44,10 +51,10 @@ export interface ResponsiveRemResult {
  */
 export function useViewportScale(
   options: ResponsiveRemOptions = {},
-  _window: Window = typeof window !== "undefined" ? window : (null as any),
-  _document: Document = typeof document !== "undefined"
+  _window: Window | null = typeof window !== "undefined" ? window : null,
+  _document: Document | null = typeof document !== "undefined"
     ? document
-    : (null as any)
+    : null
 ): ResponsiveRemResult {
   // SSR 安全检查
   if (!_window || !_document) {
@@ -68,9 +75,10 @@ export function useViewportScale(
   } = options;
   const remScale = ref(1);
   const currentFontSize = ref(baseFontSizeAtDesign);
-  const docEl = document.documentElement;
+  const docEl = _document.documentElement;
+
   if (!docEl) {
-    console.warn("[useViewportScale ] document.documentElement not found");
+    console.warn("[useViewportScale] document.documentElement not found");
     return {
       remScale: shallowReadonly(remScale),
       currentFontSize: shallowReadonly(currentFontSize),
@@ -84,8 +92,7 @@ export function useViewportScale(
       const viewportWidth = docEl.clientWidth;
       if (!viewportWidth) return;
       const scale = viewportWidth / designWidth;
-      const dpr = respectDPR ? _window.devicePixelRatio || 1 : 1;
-      // 基准字体大小（考虑 DPR）
+      const dpr = respectDPR ? _window!.devicePixelRatio || 1 : 1;
       let fontSize = baseFontSizeAtDesign * scale * dpr;
       fontSize = Math.max(fontSize, 12); // 最小不小于 12px
       if (isNaN(fontSize) || fontSize <= 0) return;
@@ -107,7 +114,7 @@ export function useViewportScale(
     if (e.persisted) debouncedSetRem();
   }
   function handleVisibilityChange() {
-    if (_document.visibilityState === "visible") {
+    if (_document!.visibilityState === "visible") {
       debouncedSetRem();
     }
   }
@@ -115,25 +122,34 @@ export function useViewportScale(
    * 绑定事件监听器
    */
   function bindEvents() {
-    _window.addEventListener("resize", debouncedSetRem, { passive: true });
-    _window.addEventListener("pageshow", handlePageShow, { passive: true });
-    _document.addEventListener("visibilitychange", handleVisibilityChange);
+    _window!.addEventListener("resize", debouncedSetRem, { passive: true });
+    _window!.addEventListener("pageshow", handlePageShow, { passive: true });
+    _document!.addEventListener("visibilitychange", handleVisibilityChange);
   }
   /**
    * 解绑事件监听器
    */
   function unbindEvents() {
-    _window.removeEventListener("resize", debouncedSetRem);
-    _window.removeEventListener("pageshow", handlePageShow);
-    _document.removeEventListener("visibilitychange", handleVisibilityChange);
+    _window!.removeEventListener("resize", debouncedSetRem);
+    _window!.removeEventListener("pageshow", handlePageShow);
+    _document!.removeEventListener("visibilitychange", handleVisibilityChange);
   }
-  // 初始化
+
+  function destroy(resetFontSize = false) {
+    debouncedSetRem.cancel();
+    unbindEvents();
+    if (resetFontSize) {
+      docEl.style.fontSize = "";
+    }
+  }
+
   bindEvents();
   debouncedSetRem();
-  // 自动销毁（仅在 Vue 组件上下文中）
-  if (autoDestroy && typeof onUnmounted === "function") {
+
+  // 仅在 setup 组件上下文中注册 onUnmounted，避免在 main.ts 中调用时报错
+  if (autoDestroy && getCurrentInstance()) {
     onUnmounted(() => {
-      unbindEvents();
+      destroy();
     });
   }
 
@@ -141,6 +157,6 @@ export function useViewportScale(
     remScale: shallowReadonly(remScale),
     currentFontSize: shallowReadonly(currentFontSize),
     update: debouncedSetRem, // 暴露手动触发接口
-    destroy: unbindEvents, // 手动销毁（适用于非组件场景）
+    destroy, // 手动销毁（适用于非组件场景）
   };
 }

@@ -14,7 +14,10 @@ async function loadNprogress() {
   if (nProgressInstance) {
     return nProgressInstance;
   }
-  nProgressInstance = await import("nprogress");
+  const mod = await import("nprogress");
+  // ESM / CJS interop：优先取 default
+  nProgressInstance = ((mod as { default?: typeof NProgress }).default ??
+    mod) as typeof NProgress;
   nProgressInstance.configure({
     showSpinner: true,
     speed: 300,

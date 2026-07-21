@@ -46,11 +46,12 @@
     "test": "vitest run",
     "prepublishOnly": "pnpm build"
   },
+  "dependencies": {
+    "localforage": "catalog:",
+    "nprogress": "catalog:"
+  },
   "devDependencies": {
     "@types/nprogress": "catalog:",
-    "dayjs": "catalog:",
-    "localforage": "catalog:",
-    "nprogress": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:"
   },

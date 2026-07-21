@@ -22,23 +22,22 @@ export function debounce<T extends (...args: any[]) => any>(
   let timer: ReturnType<typeof setTimeout> | null = null;
 
   const debounced = (...args: Parameters<T>): ReturnType<T> | undefined => {
+    // lodash 风格：immediate 时仅 leading 执行，冷却期内不再 trailing
+    const callNow = immediate && !timer;
+
     if (timer) {
       clearTimeout(timer);
     }
 
-    if (immediate && !timer) {
-      // 立即执行
-      const result = fn(...args);
-      timer = setTimeout(() => {
-        timer = null;
-      }, delay);
-      return result;
-    } else {
-      // 延迟执行
-      timer = setTimeout(() => {
-        timer = null;
+    timer = setTimeout(() => {
+      timer = null;
+      if (!immediate) {
         fn(...args);
-      }, delay);
+      }
+    }, delay);
+
+    if (callNow) {
+      return fn(...args);
     }
   };
   // 添加取消方法
@@ -87,31 +86,33 @@ export function throttle<T extends (...args: any[]) => any>(
       lastArgs = null;
     }
   };
+
+  const clearTimer = () => {
+    if (timer != null) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  };
+
   const throttled = (...args: Parameters<T>): void => {
     const now = Date.now();
     const elapsed = now - lastExecTime;
     lastArgs = args;
     if (leading && elapsed > delay) {
-      // 立即执行
-      clearTimeout(timer!);
-      timer = null;
+      clearTimer();
       invoke();
     } else if (trailing) {
-      // 延迟到窗口结束执行
-      clearTimeout(timer!);
+      clearTimer();
       timer = setTimeout(() => {
         timer = null;
-        if (!leading || elapsed <= delay) {
+        if (!leading || Date.now() - lastExecTime >= delay) {
           invoke();
         }
-      }, delay - elapsed);
+      }, Math.max(delay - elapsed, 0));
     }
   };
   throttled.cancel = () => {
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
+    clearTimer();
     lastArgs = null;
   };
   return throttled;
@@ -124,6 +125,6 @@ export function throttle<T extends (...args: any[]) => any>(
  * await sleep(1000)
  * ```
  */
-export function sleep(ms?: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export function sleep(ms: number = 0) {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
 }

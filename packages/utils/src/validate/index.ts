@@ -10,32 +10,36 @@ export function isEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
+/** 与 getPasswordStrength 共用的特殊字符检测 */
+const SPECIAL_CHAR_RE = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]/;
+
 /**
- * 验证字符串是否为有效的手机号码格式
- * @param phone - 待验证的手机号码字符串
- * @returns 如果是有效的手机号码格式返回 true，否则返回 false
+ * 验证字符串是否为有效的手机号码（中国大陆 11 位，或 E.164 国际号）
  * @example
  * isPhoneNumber("13812345678"); // true
- * isPhoneNumber("+12345678901"); // true
+ * isPhoneNumber("+8613812345678"); // true
  * isPhoneNumber("123"); // false
  */
 export function isPhoneNumber(phone: string): boolean {
-  const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-  return phoneRegex.test(phone);
+  const cnMobile = /^1[3-9]\d{9}$/;
+  const e164 = /^\+[1-9]\d{1,14}$/;
+  return cnMobile.test(phone) || e164.test(phone);
 }
+
 /**
- * 验证字符串是否为有效的强密码格式
- * 强密码要求：至少8位，包含大小写字母、数字和特殊字符
- * @param password - 待验证的密码字符串
- * @returns 如果是有效的强密码格式返回 true，否则返回 false
+ * 验证字符串是否为强密码：至少 8 位，含大小写字母、数字和特殊字符
  * @example
  * isStrongPassword("Abc@123456"); // true
  * isStrongPassword("abc123"); // false
  */
 export function isStrongPassword(password: string): boolean {
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  return passwordRegex.test(password);
+  if (!password || password.length < 8) return false;
+  return (
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /\d/.test(password) &&
+    SPECIAL_CHAR_RE.test(password)
+  );
 }
 /**
  * 验证字符串是否为有效的URL格式
@@ -94,18 +98,50 @@ export function isUUID(uuid: string): boolean {
   return uuidRegex.test(uuid);
 }
 /**
- * 验证字符串是否为有效的IP地址格式
- * @param ip - 待验证的IP地址字符串
- * @returns 如果是有效的IP地址格式返回 true，否则返回 false
+ * 验证 IPv4 地址
+ * @example
+ * isIPv4("192.168.0.1"); // true
+ */
+export function isIPv4(ip: string): boolean {
+  const ipv4Regex =
+    /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)$/;
+  return ipv4Regex.test(ip);
+}
+
+/**
+ * 验证 IPv6 地址（含压缩写法）
+ * @example
+ * isIPv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334"); // true
+ * isIPv6("::1"); // true
+ */
+export function isIPv6(ip: string): boolean {
+  if (!ip || ip.includes(":::")) return false;
+  // 完整 8 组
+  if (/^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/.test(ip)) return true;
+  // 含 :: 压缩
+  if (!ip.includes("::")) return false;
+  const parts = ip.split("::");
+  if (parts.length !== 2) return false;
+  const left = parts[0] ? parts[0].split(":") : [];
+  const right = parts[1] ? parts[1].split(":") : [];
+  if (left.length + right.length > 7) return false;
+  const group = /^[0-9a-fA-F]{1,4}$/;
+  return (
+    left.every((g) => g === "" || group.test(g)) &&
+    right.every((g) => g === "" || group.test(g)) &&
+    !(parts[0] === "" && parts[1] === "" && ip !== "::")
+  );
+}
+
+/**
+ * 验证 IPv4 或 IPv6 地址
  * @example
  * isIP("192.168.0.1"); // true
- * isIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334"); // true
+ * isIP("2001:db8::1"); // true
  * isIP("invalid-ip"); // false
  */
 export function isIP(ip: string): boolean {
-  const ipRegex =
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return ipRegex.test(ip);
+  return isIPv4(ip) || isIPv6(ip);
 }
 /**
  * 验证字符串是否为有效的数字格式
@@ -173,18 +209,35 @@ export function isBase64String(base64String: string): boolean {
     /^(?:[A-Za-z0-9+\/]{4})*?(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/;
   return base64Regex.test(base64String);
 }
+/** Luhn 校验 */
+function luhnCheck(cardNumber: string): boolean {
+  const digits = cardNumber.replace(/\D/g, "");
+  if (digits.length < 13 || digits.length > 19) return false;
+  let sum = 0;
+  let alternate = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let n = Number(digits[i]);
+    if (alternate) {
+      n *= 2;
+      if (n > 9) n -= 9;
+    }
+    sum += n;
+    alternate = !alternate;
+  }
+  return sum % 10 === 0;
+}
+
 /**
- * 验证字符串是否为有效的信用卡号码格式
- * @param cardNumber - 待验证的信用卡号码字符串
- * @returns 如果是有效的信用卡号码格式返回 true，否则返回 false
+ * 验证信用卡号（卡段正则 + Luhn）
  * @example
  * isCreditCardNumber("4111111111111111"); // true
  * isCreditCardNumber("invalid-card-number"); // false
  */
 export function isCreditCardNumber(cardNumber: string): boolean {
+  const normalized = cardNumber.replace(/[\s-]/g, "");
   const cardRegex =
-    /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|6(?:011|5[0-9]{2})[0-9]{12}|(?:2131|1800|35\d{3})\d{11})$/;
-  return cardRegex.test(cardNumber);
+    /^(?:4\d{12}(?:\d{3})?|5[1-5]\d{14}|3[47]\d{13}|3(?:0[0-5]|[68]\d)\d{11}|6(?:011|5\d{2})\d{12}|(?:2131|1800|35\d{3})\d{11})$/;
+  return cardRegex.test(normalized) && luhnCheck(normalized);
 }
 /**
  * 验证字符串是否为有效的邮政编码格式
