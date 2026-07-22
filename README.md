@@ -268,7 +268,8 @@ pnpm release   # 实际执行 bumpp
 
 ## 发布前检查清单
 
-- [ ] 已 `npm login`，且对 `@gengjjjjj/*` 有权限  
+- [ ] 已配置可发布的鉴权（见下方「403 / 2FA」）：Granular Token 或已开启 2FA  
+- [ ] `npm whoami` 能正确显示账号  
 - [ ] 功能在 Playground / 文档中验证通过  
 - [ ] `component` 已执行 `pnpm build:components`  
 - [ ] 未手改版本号（交给 `pnpm cv`）  
@@ -276,7 +277,8 @@ pnpm release   # 实际执行 bumpp
 - [ ] 已执行 `pnpm cv` 并提交版本与 changelog  
 - [ ] 破坏性变更选了 `major`，并在说明里写清楚  
 - [ ] 若改了 `utils`，评估是否要同步发 `composables`  
-- [ ] `dist` 已被 `.gitignore` 忽略，不把构建产物当源码提交（发布靠 `prepublishOnly` / 本地 build）
+- [ ] `dist` 已被 `.gitignore` 忽略，不把构建产物当源码提交（发布靠 `prepublishOnly` / 本地 build）  
+- [ ] 改过依赖后已本地 `pnpm install`，并提交最新 `pnpm-lock.yaml`（避免 CI frozen-lockfile 失败）
 
 ---
 
@@ -292,18 +294,65 @@ pnpm release   # 实际执行 bumpp
 
 先看各包 `package.json` 的 `version` 是否已高于 npm。
 
-### 2. 发布失败：`403 Forbidden`？
+### 2. 发布失败：`E403` / 要求 2FA 或 Granular Token（实测踩坑）
 
-检查：
+`pnpm cp` 可能报类似：
+
+```text
+E403 403 Forbidden - PUT https://registry.npmjs.org/@gengjjjjj%2fcomponent
+Two-factor authentication or granular access token with bypass 2fa enabled
+is required to publish packages.
+```
+
+**原因：** npm 已强制：发布包必须开启 **两步验证（2FA）**，或使用带发布权限的 **Granular Access Token**（账号开了 2FA 时通常还需勾选 bypass 2FA）。普通 `npm login` 用账号密码会话往往不够。
+
+**处理步骤：**
+
+1. 打开 https://www.npmjs.com/settings/~/tokens  
+2. 创建 **Granular Access Token**  
+   - Permissions：**Read and write**（可发布）  
+   - 若账号已开 2FA：勾选允许自动化发布 / **bypass 2fa**（以页面选项为准）  
+   - Packages：勾选 `@gengjjjjj/component`、`composables`、`utils`，或整个 `@gengjjjjj` scope  
+3. 本地写入鉴权（**不要把 token 提交进仓库**）：
+
+```bash
+npm logout
+npm login
+# Password 处粘贴 Access Token（不是登录密码）
+
+# 或：
+npm config set //registry.npmjs.org/:_authToken=你的token
+```
+
+4. 确认后再发：
 
 ```bash
 npm whoami
-npm access list packages
+pnpm cp
 ```
 
-确认账号能发布 `@gengjjjjj/*`，且 `.npmrc` registry 指向官方源。
+说明：版本若已通过 `cv` bump 过，**不必再跑 `ca` / `cv`**，鉴权修好后直接 `pnpm cp`。已成功发布的同版本包不会重复上传，只会继续发还没上去的包。
 
-### 3. 第一次发布某个 scoped 包？
+也可在 npm 账号设置里开启 **Two-Factor Authentication**，再用支持 OTP 的方式发布；日常本地/CI 更推荐 Granular Token。
+
+### 3. 发布失败：`ECONNRESET` / `socket hang up`（实测踩坑）
+
+同一次 `pnpm cp` 中可能出现：
+
+```text
+ECONNRESET request to https://registry.npmjs.org/@gengjjjjj%2futils failed
+reason: socket hang up
+```
+
+**原因：** 访问 `registry.npmjs.org` 时网络中断（代理、防火墙、链路不稳定等），与包内容无关。
+
+**处理：**
+
+- 检查代理 / VPN / 公司网络后重试 `pnpm cp`  
+- 换稳定网络再发  
+- 其它包若已因 403 失败，先按上一节修好鉴权，再统一重试  
+
+### 4. 第一次发布某个 scoped 包？
 
 `publishConfig.access` 已为 `public`。若仍报错，可显式：
 
@@ -311,13 +360,19 @@ npm access list packages
 pnpm --filter @gengjjjjj/utils publish --access public
 ```
 
-### 4. `composables` 装上后找不到 `utils`？
+### 5. `composables` 装上后找不到 `utils`？
 
 `composables` 的 `dependencies` 含 `@gengjjjjj/utils`。发布后由 npm 安装依赖；请保证 `utils` 已发布到 registry，且版本满足约束。
 
-### 5. 只改了文档，要发版吗？
+### 6. 只改了文档，要发版吗？
 
 一般不强制。若希望 changelog 留下记录，可对相关包打一个 `patch` changeset 再发。
+
+### 7. 文档站 CI：`ERR_PNPM_OUTDATED_LOCKFILE`？
+
+改了某个包的依赖（例如去掉 `@types/dompurify`）但未提交同步后的 `pnpm-lock.yaml` 时，CI 中 `pnpm install`（默认 frozen-lockfile）会失败。
+
+本地执行 `pnpm install`，将更新后的 `pnpm-lock.yaml` 一并提交推送即可。
 
 ---
 
@@ -326,3 +381,4 @@ pnpm --filter @gengjjjjj/utils publish --access public
 - 文档：https://gengjjjjj.github.io/mono-pack/  
 - 仓库：https://gitee.com/gengJJJJJ/mono-pack  
 - Changesets 文档：https://github.com/changesets/changesets  
+- npm Token 设置：https://www.npmjs.com/settings/~/tokens  
